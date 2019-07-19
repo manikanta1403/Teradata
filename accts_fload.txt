@@ -1,0 +1,61 @@
+/************** no of sessions and logon*************/
+.sessions 1 ;
+.logon 127.0.0.1/dbc,dbc ;
+
+/************ droping existing tables and creating FLOAD table***********/
+ 
+drop table training.accts_fload
+;drop table training.accts_err1
+;drop table training.accts_err2
+;
+
+create multiset table training.accts_fload
+(
+ cust_id integer
+,acct_type char(2)
+,acct_nbr char(20)
+,acct_start_date date format 'yyyy-mm-dd'
+,acct_end_date date format 'yyyy-mm-dd'
+)
+;
+
+/********** giving record number and delimiter***************/
+
+.record 2
+set record vartext "	" ;
+
+/**********defining table and providing file path************/
+
+define
+ cust_id (varchar(10))
+,acct_type (varchar(10))
+,acct_nbr (varchar(10))
+,acct_start_date (varchar(20))
+,acct_end_date (varchar(20))
+
+file= C:\Teradata\Fload\acct_file.txt ;
+
+/************* Begin loading *************/
+
+begin loading training.accts_fload
+errorfiles training.accts_err1
+          ,training.accts_err2 ;
+
+/************** inserting data into table *********/
+
+insert into training.accts_fload
+(
+ :cust_id
+,:acct_type
+,:acct_nbr
+,:acct_start_date (date, format 'YYYY-MM-DD')
+,:acct_end_date (date, format 'YYYY-MM-DD')
+)
+;
+
+/************* End loading and logout session***********/
+end loading ;
+.logoff ;
+.exit;
+
+
